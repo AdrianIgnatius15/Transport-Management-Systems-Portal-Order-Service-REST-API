@@ -13,6 +13,7 @@ RUN dotnet publish -c Release -o out
 
 # Stage 2: Runtime
 # Use the small ASP.NET Core runtime image to run the production compiled code
+## This stage becomes your final image, not the first stage as it's abandoned when it has completed.
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
 
