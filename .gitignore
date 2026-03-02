@@ -5,3 +5,4 @@ bin
 
 //Files to ignore
 appsettings.Development.json
+*.sln
