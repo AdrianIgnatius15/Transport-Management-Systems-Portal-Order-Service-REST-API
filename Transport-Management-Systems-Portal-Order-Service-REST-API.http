@@ -1,6 +1,0 @@
-@Transport_Management_Systems_Portal_Order_Service_REST_API_HostAddress = http://localhost:5230
-
-GET {{Transport_Management_Systems_Portal_Order_Service_REST_API_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
