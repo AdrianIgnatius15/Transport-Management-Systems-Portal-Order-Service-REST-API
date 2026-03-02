@@ -1,0 +1,7 @@
+// Folders to ignore
+obj
+bin
+.vscode
+
+//Files to ignore
+appsettings.Development.json
