@@ -4,6 +4,22 @@ This code represents the business logic and execution of it's code to help custo
 
 It will help the carriers to view all orders that may contain the size of the shipments, the type of shipment goods, the value of shipments, the delivery date of the shipments and the destination/shipped address so that they can calculate the rates & make the decision on which type of transportation mode the shipment can be delivered.
 
+## Commands to build the Dockerfile into a 🐳 Docker image
+
+Firstly, this project uses a multi-stage strategy creation of a Docker image. A multi-stage Dockerfile uses multiple `FROM` instructions to create smaller, more secure, and efficient images by separating the build environment from the production runtime. You compile code and install dependencies in an initial heavy stage, then use `COPY --from` to move only the final artifacts to a lightweight, minimal production image.
+
+    1. Run this command below
+        `docker build -t transport-management-systems-portal-order-service-rest-api .`
+    2. After building the Docker image, then run the command below
+        `docker login` --> Ensure you login into your own DockerHub or any other image hub repository.
+    3. Once logged in, run this command to tag the locally build Docker image to a tag name which points to your remote image hub repository
+        `docker tag transport-management-systems-portal-order-service-rest-api adrianjoseph15/transport-management-systems-portal-order-rest-api:latest`
+    4. Then, finally push the Docker image to the remote repository hub which you logged in, this uses DockerHub but feel free to use others
+        `docker push adrianjoseph15/transport-management-systems-portal-order-rest-api:latest`
+
+Refer to this video to understand of multi-stage Dockerfile image [https://youtu.be/V0kTEk7YA70?si=x6Y3niUnHi72kC2w](
+Docker Multistage builds explained in 8 minutes).
+
 ## Weight & Dimensions Calculator
 
 How To Calculate Dimensional Weight
