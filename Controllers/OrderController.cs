@@ -13,7 +13,6 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepo _repo;
@@ -23,15 +22,17 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             _repo = repo;
         }
 
-        [HttpPost("by-client/{clientId}")]
-        public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrdersByClientId(Guid clientId, [FromBody] PaginationParameters parameters)
+        [HttpGet("emailPagination")]
+        // [Authorize(Roles = "shipper")]
+        public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrdersByClientEmail([FromQuery] PaginationOrderSearchParameters parameters)
         {
             if (parameters == null)
             {
-                parameters = new PaginationParameters();
+                parameters = new PaginationOrderSearchParameters();
             }
 
-            var pagedOrders = await _repo.GetAllOrdersByClientIdWithPagination(clientId, parameters);
+            Console.WriteLine("Email", parameters.Email);
+            var pagedOrders = await _repo.GetAllOrdersByClientEmailWithPagination(parameters);
 
             var orderReadDtos = pagedOrders.Items.Select(o =>
             {
@@ -50,7 +51,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             return Ok(result);
         }
 
-        [HttpPost("orders")]
+        [HttpPost("all")]
+        [Authorize(Roles = "shipper,receiver")]
         public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrders([FromBody] PaginationParameters parameters)
         {
             if (parameters == null)
@@ -69,7 +71,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             return Ok(new PaginatedResult<OrderReadDto>(orderReadDtos, pagedAllOrders.TotalCount, pagedAllOrders.PageNumber, pagedAllOrders.PageSize));
         }
 
-        [HttpPost]
+        [HttpPost("create")]
+        [Authorize(Roles = "shipper")]
         public async Task<ActionResult<string>> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
         {
             if (orderCreateDto == null)
@@ -95,6 +98,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             }
         }
 
+        [HttpGet]
         public async Task<ActionResult<IEnumerable<OrderReadDto>>> GetAllOrders()
         {
             var orders = await _repo.GetAllOrders();
