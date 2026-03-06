@@ -13,7 +13,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Interf
 
         Task<PaginatedResult<Order>> GetAllOrdersByClientIdWithPagination(Guid clientId, PaginationParameters parameters);
 
-        Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(string email, PaginationParameters paginationParameters);
+        Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(PaginationOrderSearchParameters paginationParameters);
 
         Task<Order?> GetOrderById(Guid id);
 

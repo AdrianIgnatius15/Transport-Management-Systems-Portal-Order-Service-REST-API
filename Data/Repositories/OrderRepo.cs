@@ -62,9 +62,17 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Reposi
             _dbContext.Orders.Update(order);
         }
 
-        public Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(string email, PaginationParameters paginationParameters)
+        public async Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(PaginationOrderSearchParameters paginationParameters)
         {
-            throw new NotImplementedException();
+            var orders = await _dbContext.Orders
+                .Where(orders => orders.Client.ContactEmail.ToLower() == paginationParameters.Email)
+                .Distinct()
+                .OrderBy(order => order.ClientId)
+                .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)
+                .Take(paginationParameters.PageSize)
+                .ToListAsync();
+
+            return new PaginatedResult<Order>(orders, orders.Count, paginationParameters.PageNumber, paginationParameters.PageSize);
         }
     }
 }
