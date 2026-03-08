@@ -42,7 +42,8 @@ services:
 
   rabbitmq:
     image: rabbitmq:management
-    container: rabbitmq
+    container_name: rabbitmq
+    hostname: tms-mq
     environment:
       - RABBITMQ_DEFAULT_USER=tms
       - RABBITMQ_DEFAULT_PASSWORD=tms123
