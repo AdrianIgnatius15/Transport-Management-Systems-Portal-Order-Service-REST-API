@@ -2,6 +2,7 @@
 obj
 bin
 .vscode
+rabbitmq
 
 //Files to ignore
 appsettings.Development.json
