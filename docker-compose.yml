@@ -1,0 +1,51 @@
+services:
+  graphhopper:
+    image: israelhikingmap/graphhopper:latest
+    container_name: graphhopper
+    ports:
+      - "8989:8989"
+    volumes:
+      - ./graphhopper_data:/data
+    environment:
+      # Increased memory for the import process
+      - JAVA_OPTS=-Xmx4g -Xms4g
+    command: >
+      --url https://download.geofabrik.de/north-america/us/california/socal-latest.osm.pbf
+      --host 0.0.0.0
+    restart: always
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    command: start-dev
+    restart: unless-stopped
+  
+  seaweedfs:
+    image: chrislusf/seaweedfs:latest
+    container_name: seaweedfs
+    ports:
+      - "127.0.0.1:8333:8333" # S3 API
+      - "127.0.0.1:9333:9333" # Master UI (Cluster management)
+      - "127.0.0.1:8888:8888" # Filer UI (File browser)
+    environment:
+      - AWS_ACCESS_KEY_ID=admin
+      - AWS_SECRET_ACCESS_KEY=password123
+    volumes:
+      - ./tms-file-storage-data:/data
+    command: "server -s3 -dir=/data" # Starts master volume, filer and S3 gateway
+    restart: unless-stopped
+
+  rabbitmq:
+    image: rabbitmq:management
+    container: rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=tms
+      - RABBITMQ_DEFAULT_PASSWORD=tms123
+    volumes:
+      - ./rabbitmq/queue/data:/var/lib/rabbitmq
+      - ./rabbitmq/queue/log/:/var/log/rabbitmq
