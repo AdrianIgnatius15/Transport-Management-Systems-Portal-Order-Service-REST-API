@@ -22,8 +22,29 @@ services:
     environment:
       KEYCLOAK_ADMIN: admin
       KEYCLOAK_ADMIN_PASSWORD: admin
-    command: start-dev
+      HTTP_EVENT_LISTENER_URL: "http://host.docker.internal:5230/api/client/user-registration-sync"
+      HTTP_EVENT_LISTENER_SECRET: tms-event-user-2478
+    volumes:
+      - ./plugins:/opt/keycloak/providers
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "nginx:host-gateway"
+    command: 
+      - start-dev 
+      - --http-enabled=true 
+      - --spi-events-listener-http-url=http://host.docker.internal:5230/api/client/user-registration-sync
+    depends_on:
+      - nginx
     restart: unless-stopped
+  
+  nginx:
+    image: alpine/socat
+    container_name: nginx_proxy
+    # Listen on 80 (what the plugin wants) 
+    # Forward to host.docker.internal:5230 (your .NET API)
+    command: tcp-listen:80,fork,reuseaddr tcp:host.docker.internal:5230
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   
   seaweedfs:
     image: chrislusf/seaweedfs:latest
@@ -44,9 +65,12 @@ services:
     image: rabbitmq:management
     container_name: rabbitmq
     hostname: tms-mq
+    ports:
+      - "5672:5672"   # RabbitMQ messaging port
+      - "15672:15672" # RabbitMQ Management UI port (ADD THIS)
     environment:
       - RABBITMQ_DEFAULT_USER=tms
-      - RABBITMQ_DEFAULT_PASSWORD=tms123
+      - RABBITMQ_DEFAULT_PASS=tms123
     volumes:
       - ./rabbitmq/queue/data:/var/lib/rabbitmq
       - ./rabbitmq/queue/log/:/var/log/rabbitmq
