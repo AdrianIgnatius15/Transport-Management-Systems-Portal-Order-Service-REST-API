@@ -20,6 +20,35 @@ Firstly, this project uses a multi-stage strategy creation of a Docker image. A 
 Refer to this video to understand of multi-stage Dockerfile image [https://youtu.be/V0kTEk7YA70?si=x6Y3niUnHi72kC2w](
 Docker Multistage builds explained in 8 minutes).
 
+## Creating Keycloak SPI Events Listener for User Registration
+After a user has created an account in Keycloak as Keycloak is an Identity Server, the REST API has no way of finding out that the user has created an account. Hence, Keycloak allows developers to create an Event Listener by creating a simple Java SpringBoot application for it and it will then call the exposed endpoint of your backend to pass the new user created data.
+
+(Keycloak SPI Event Listener)[https://dev.to/adwaitthattey/building-an-event-listener-spi-plugin-for-keycloak-2044]
+
+To create and build the Event Listener, simply clone the project, ensure that you have Java & Maven installed and run `mvn clean install`.
+Once that's done, head to the generated "target" folder and copy the `sample-event-listener.jar`. This build Event Listener will be then used to hook to our Keycloak Docker Image from Quarkus as our "volume" to provide to. The code for the "volume" in the dockec-compose file is as below:
+
+```yml
+keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    ports:
+      - "127.0.0.1:8080:8080"
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      KC_SPI_EVENTS_LISTENER_HTTP_SERVER_URI: http://host.docker.internal:5000/api/client/user-registration-sync
+      KC_SPI_EVENTS_LISTENER_HTTP_USERNAME: tms-event-user-2478
+      WEBHOOK_URL: http://host.docker.internal:5000/api/client/user-registration-sync
+      HTTP_EVENT_LISTENER_SECRET: tms-event-user-2478
+    volumes:
+      - ./sample-event-listener.jar:/opt/keycloak/providers/event-listener.jar
+    command: start-dev --http-enabled=true
+    restart: unless-stopped
+```
+
+More info on Event Listener on Keycloak SPI [https://dev.to/adwaitthattey/building-an-event-listener-spi-plugin-for-keycloak-2044]
+
 ## Weight & Dimensions Calculator
 
 How To Calculate Dimensional Weight
