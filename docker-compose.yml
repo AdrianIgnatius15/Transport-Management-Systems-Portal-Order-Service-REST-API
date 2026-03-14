@@ -33,18 +33,9 @@ services:
       - start-dev 
       - --http-enabled=true 
       - --spi-events-listener-http-url=http://host.docker.internal:5230/api/client/user-registration-sync
-    depends_on:
-      - nginx
+    # depends_on:
+    #   - nginx
     restart: unless-stopped
-  
-  nginx:
-    image: alpine/socat
-    container_name: nginx_proxy
-    # Listen on 80 (what the plugin wants) 
-    # Forward to host.docker.internal:5230 (your .NET API)
-    command: tcp-listen:80,fork,reuseaddr tcp:host.docker.internal:5230
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
   
   seaweedfs:
     image: chrislusf/seaweedfs:latest
