@@ -7,6 +7,7 @@ using Transport_Management_Systems_Portal_Order_Service_REST_API.Data;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Interfaces;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Repositories;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Middlewares;
+using Transport_Management_Systems_Portal_Order_Service_REST_API.Middlewares.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,10 +17,13 @@ builder.Services.AddDbContext<TMSDbContext>(options => options.UseMySql(
     ServerVersion.AutoDetect(builder.Configuration.GetConnectionString("TMS-Database"))
 ));
 
+builder.Services.AddSingleton<IRabbitMQConnection, RabbitMQConnectionMiddleware>();
+
 builder.Services.AddTransient<IClaimsTransformation, KeycloakRoleTransformer>();
 builder.Services.AddScoped<IOrderRepo, OrderRepo>();
 builder.Services.AddScoped<IAddressRepo, AddressRepo>();
 builder.Services.AddScoped<IClientRepo, ClientRepo>();
+builder.Services.AddScoped<IMQProducer, MqProducer>();
 
 // CORS for Angular front-end (adjust origin as needed)
 builder.Services.AddCors(options =>
