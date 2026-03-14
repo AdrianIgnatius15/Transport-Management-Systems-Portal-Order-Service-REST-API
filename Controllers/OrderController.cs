@@ -11,8 +11,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
     public class OrderController : ControllerBase
     {
         private readonly IOrderRepo _repo;
