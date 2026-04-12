@@ -57,5 +57,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Reposi
 
         public async Task<Client?> GetClientByEmail(string email)
          => await _dbContext.Clients.FirstOrDefaultAsync(client => client.ContactEmail == email);
+
+        public async Task<bool> ShipperAccountExists(Guid uid)
+            => _dbContext.Clients.Any(client => client.Id == uid);
     }
 }

@@ -7,6 +7,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Interf
     {
         Task<bool> SaveChangesAsync();
 
+        Task<bool> ShipperAccountExists(Guid uid);
+
         Task<Client?> GetClientById(Guid id);
 
         Task<Client?> GetClientByEmail(string email);
