@@ -1,8 +1,11 @@
 using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Interfaces;
+using Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Client;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Keycloak;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Models;
+using Transport_Management_Systems_Portal_Order_Service_REST_API.Utilities;
 
 namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
 {
@@ -46,6 +49,69 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             }
 
             return BadRequest("Error encountered when synchronising user registered data");
+        }
+
+        [HttpGet("shipper/accountdetails/{uid}")]
+        [Authorize(Roles = "shipper")]
+        public async Task<ActionResult<ClientReadDto>> GetShipperAccountDetails(Guid uid)
+        {
+            if (uid.ToString() == null || uid.ToString() == "")
+            {
+                return BadRequest("There is no UID of the shipper account supplied. Please try again!");
+            } else
+            {
+                var shipper = await _repo.GetClientById(uid);
+
+                if (shipper != null)
+                {
+                    var shipperReadDTO = MapperUtility.Map<Client, ClientReadDto>(shipper);
+                    return Ok(shipperReadDTO);
+                } else
+                {
+                    return NotFound($"The shipper account with the UID {uid} cannot be found");
+                }
+            }
+        }
+
+        [HttpPut("shipper/updateaccount/{uid}")]
+        [Authorize(Roles = "shipper")]
+        public async Task<ActionResult> UpdateShipperAccount(Guid uid, [FromBody] ClientUpdateDto clientUpdateDto)
+        {
+            if (uid.ToString() == null || uid.ToString() == "")
+            {
+                return BadRequest("There is no UID of the shipper account supplied. Please try again!");
+            } else
+            {
+                if (clientUpdateDto == null || 
+                    string.IsNullOrWhiteSpace(clientUpdateDto.Name) ||
+                    string.IsNullOrWhiteSpace(clientUpdateDto.ContactEmail) ||
+                    string.IsNullOrWhiteSpace(clientUpdateDto.ContactPhone))
+                {
+                    return BadRequest("Required fields are missing. Please provide Name, ContactEmail, and ContactPhone.");
+                } else
+                {
+
+                    if (await _repo.ShipperAccountExists(uid))
+                    {
+                        var shipperAccountToUpdate = MapperUtility.Map<ClientUpdateDto, Client>(clientUpdateDto);
+                        await _repo.UpdateClient(shipperAccountToUpdate);
+                        bool isUpdatedFlag = await _repo.SaveChangesAsync();
+
+                        if (isUpdatedFlag)
+                        {
+                            Console.WriteLine("Shipper account has been updated!");
+                        } else
+                        {
+                            Console.WriteLine("Shipper account was not updated!");
+                        }
+
+                        return NoContent();
+                    } else
+                    {
+                        return NotFound($"The shipper account with the UID {uid} does not exists");
+                    }
+                }
+            }
         }
     }
 }
