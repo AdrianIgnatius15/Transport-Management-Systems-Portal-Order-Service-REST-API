@@ -23,7 +23,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
         }
 
         [HttpGet("emailPagination")]
-        // [Authorize(Roles = "shipper")]
+        [Authorize(Roles = "shipper")]
         public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrdersByClientEmail([FromQuery] PaginationOrderSearchParameters parameters)
         {
             if (parameters == null)
