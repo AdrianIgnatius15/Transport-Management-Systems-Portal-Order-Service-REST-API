@@ -94,18 +94,20 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                     if (await _repo.ShipperAccountExists(uid))
                     {
                         var shipperAccountToUpdate = MapperUtility.Map<ClientUpdateDto, Client>(clientUpdateDto);
+                        // IMPORTANT: Use the uid from the URL parameter, not the one from the request body
+                        shipperAccountToUpdate.Id = uid;
                         await _repo.UpdateClient(shipperAccountToUpdate);
                         bool isUpdatedFlag = await _repo.SaveChangesAsync();
 
                         if (isUpdatedFlag)
                         {
                             Console.WriteLine("Shipper account has been updated!");
+                            return NoContent();
                         } else
                         {
                             Console.WriteLine("Shipper account was not updated!");
+                            return BadRequest("Failed to update shipper account");
                         }
-
-                        return NoContent();
                     } else
                     {
                         return NotFound($"The shipper account with the UID {uid} does not exists");
