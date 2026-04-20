@@ -26,29 +26,71 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
         [Authorize(Roles = "shipper")]
         public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrdersByClientEmail([FromQuery] PaginationOrderSearchParameters parameters)
         {
-            if (parameters == null)
+            if (parameters.Email == "" || parameters.Email == null)
             {
-                parameters = new PaginationOrderSearchParameters();
+                return BadRequest("Email of the shipper is required!");
+            } else
+            {
+                string shipperEmail = parameters.Email;
+                if (parameters.PageNumber == 0 && parameters.PageSize == 0)
+                {
+                    parameters = new PaginationOrderSearchParameters();
+                }
+
+                Console.WriteLine("Email", shipperEmail);
+                var pagedOrders = await _repo.GetAllOrdersByClientEmailWithPagination(shipperEmail, parameters);
+
+                var orderReadDtos = pagedOrders.Items.Select(o =>
+                {
+                    var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(o);
+                    if (o.Client != null)
+                        orderReadDto.Client = MapperUtility.Map<Client, ClientReadDto>(o.Client);
+                    if (o.PickupAddress != null)
+                        orderReadDto.PickupAddress = MapperUtility.Map<Address, AddressReadDto>(o.PickupAddress);
+                    if (o.DeliveryAddress != null)
+                        orderReadDto.DeliveryAddress = MapperUtility.Map<Address, AddressReadDto>(o.DeliveryAddress);
+                    return orderReadDto;
+                }).ToList();
+
+                var result = new PaginatedResult<OrderReadDto>(orderReadDtos, pagedOrders.TotalCount, pagedOrders.PageNumber, pagedOrders.PageSize);
+
+                return Ok(result);
             }
+        }
 
-            Console.WriteLine("Email", parameters.Email);
-            var pagedOrders = await _repo.GetAllOrdersByClientEmailWithPagination(parameters);
-
-            var orderReadDtos = pagedOrders.Items.Select(o =>
+        [HttpGet("all/shipperid")]
+        [Authorize(Roles = "shipper,receiver")]
+        public async Task<ActionResult<PaginatedResult<OrderReadDto>>> GetAllOrdersWithShipperIdPaginated([FromQuery] PaginationOrderSearchParameters parameters)
+        {
+            if (!parameters.Id.HasValue)
             {
-                var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(o);
-                if (o.Client != null)
-                    orderReadDto.Client = MapperUtility.Map<Client, ClientReadDto>(o.Client);
-                if (o.PickupAddress != null)
-                    orderReadDto.PickupAddress = MapperUtility.Map<Address, AddressReadDto>(o.PickupAddress);
-                if (o.DeliveryAddress != null)
-                    orderReadDto.DeliveryAddress = MapperUtility.Map<Address, AddressReadDto>(o.DeliveryAddress);
-                return orderReadDto;
-            }).ToList();
+                return BadRequest("Provide the shipper's unique ID found in the account details!");
+            } else
+            {
+                Guid id = parameters.Id.Value;
+                if (parameters.PageNumber == 0 && parameters.PageSize == 0)
+                {
+                    parameters = new PaginationOrderSearchParameters();
+                }
 
-            var result = new PaginatedResult<OrderReadDto>(orderReadDtos, pagedOrders.TotalCount, pagedOrders.PageNumber, pagedOrders.PageSize);
+                var ordersPaginated = await _repo.GetAllOrdersByClientIdWithPagination(id, parameters);
 
-            return Ok(result);
+                var orderReadDtos = ordersPaginated.Items.Select(o =>
+                {
+                    var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(o);
+                    if (o.Client != null)
+                        orderReadDto.Client = MapperUtility.Map<Client, ClientReadDto>(o.Client);
+                    if (o.PickupAddress != null)
+                        orderReadDto.PickupAddress = MapperUtility.Map<Address, AddressReadDto>(o.PickupAddress);
+                    if (o.DeliveryAddress != null)
+                        orderReadDto.DeliveryAddress = MapperUtility.Map<Address, AddressReadDto>(o.DeliveryAddress);
+                    return orderReadDto;
+                }).ToList();
+
+                var result = new PaginatedResult<OrderReadDto>(orderReadDtos, ordersPaginated.TotalCount, ordersPaginated.PageNumber, ordersPaginated.PageSize);
+
+                return Ok(result);
+            }
         }
 
         [HttpPost("all")]

@@ -37,15 +37,17 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Reposi
             return new PaginatedResult<Order>(orders, orders.Count, parameters.PageNumber, parameters.PageSize);
         }
 
-        public async Task<PaginatedResult<Order>> GetAllOrdersByClientIdWithPagination(Guid clientId, PaginationParameters parameters)
+        public async Task<PaginatedResult<Order>> GetAllOrdersByClientIdWithPagination(Guid clientId, PaginationOrderSearchParameters parameters)
         {
             var orders = await _dbContext.Orders
                     .Include(order => order.Client)
-                    .Include(order => order.DeliveryAddress)
-                    .Include(order => order.PickupAddress)
+                    // .Include(order => order.DeliveryAddress)
+                    // .Include(order => order.PickupAddress)
                 .Where(order => order.ClientId == clientId)
                 .Skip((parameters.PageNumber - 1) * parameters.PageSize)
                 .Take(parameters.PageSize)
+                .Distinct()
+                .OrderBy(order => order.OrderNumber)
                 .ToListAsync();
 
             return new PaginatedResult<Order>(orders, orders.Count, parameters.PageNumber, parameters.PageSize);
@@ -62,10 +64,10 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Reposi
             _dbContext.Orders.Update(order);
         }
 
-        public async Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(PaginationOrderSearchParameters paginationParameters)
+        public async Task<PaginatedResult<Order>> GetAllOrdersByClientEmailWithPagination(string email, PaginationOrderSearchParameters paginationParameters)
         {
             var orders = await _dbContext.Orders
-                .Where(orders => orders.Client.ContactEmail.ToLower() == paginationParameters.Email)
+                .Where(orders => orders.Client.ContactEmail.ToLower() == email)
                 .Distinct()
                 .OrderBy(order => order.ClientId)
                 .Skip((paginationParameters.PageNumber - 1) * paginationParameters.PageSize)

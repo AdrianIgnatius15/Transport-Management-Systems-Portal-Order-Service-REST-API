@@ -17,6 +17,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Pagina
             set => _pageSize = value < 1 ? 10 : (value > 100 ? 100 : value);
         }
 
-        public string Email { get; set; } = string.Empty;
+        public string? Email { get; set; } = string.Empty;
+        public Guid? Id { get; set; }
     }
 }

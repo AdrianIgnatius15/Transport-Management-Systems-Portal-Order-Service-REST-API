@@ -1,6 +1,5 @@
 using System.ComponentModel.DataAnnotations;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Address;
-using Transport_Management_Systems_Portal_Order_Service_REST_API.Models.Enums;
 
 namespace Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Order
 {
