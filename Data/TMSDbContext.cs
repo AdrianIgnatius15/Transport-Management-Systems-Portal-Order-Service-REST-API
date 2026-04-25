@@ -19,6 +19,10 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data
 
         public DbSet<Order> Orders { get; set; } = null!;
 
+        public DbSet<Shipment> Shipments { get; set; } = null!;
+
+        public DbSet<Piece> Pieces { get; set; } = null!;
+
         public DbSet<TrackingEvent> TrackingEvents { get; set; } = null!;
     }
 }
