@@ -136,7 +136,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                 await _repo.CreateOrder(order);
                 await _repo.SaveChangesAsync();
 
-                return Ok("Order Created!");
+                return CreatedAtAction(nameof(GetOrderById), new { id = order.Id }, order);
             }
         }
 
@@ -146,6 +146,29 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             var orders = await _repo.GetAllOrders();
 
             return Ok(orders);
+        }
+
+        [HttpGet("{id}", Name = "GetOrderById")]
+        [Authorize(Roles = "shipper")]
+        public async Task<ActionResult<OrderReadDto>> GetOrderById(Guid id)
+        {
+            if (id.ToString() == "")
+            {
+                return BadRequest("The order ID is missing! Please try again with an order ID");
+            } else
+            {
+                var order = await _repo.GetOrderById(id);
+
+                if(order != null)
+                {
+                    var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(order);
+
+                    return Ok(orderReadDto);
+                } else
+                {
+                    return NotFound("The order ID does not exists!");
+                }
+            }
         }
     }
 }
