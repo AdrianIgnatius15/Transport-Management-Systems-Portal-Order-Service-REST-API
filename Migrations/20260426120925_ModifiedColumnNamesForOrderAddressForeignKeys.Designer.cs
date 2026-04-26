@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Data;
 
@@ -11,9 +12,11 @@ using Transport_Management_Systems_Portal_Order_Service_REST_API.Data;
 namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Migrations
 {
     [DbContext(typeof(TMSDbContext))]
-    partial class TMSDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260426120925_ModifiedColumnNamesForOrderAddressForeignKeys")]
+    partial class ModifiedColumnNamesForOrderAddressForeignKeys
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
