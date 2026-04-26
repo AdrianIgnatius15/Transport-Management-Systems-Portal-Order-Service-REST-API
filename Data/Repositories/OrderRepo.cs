@@ -54,7 +54,13 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Data.Reposi
         }
 
         public async Task<Order?> GetOrderById(Guid id)
-            => await _dbContext.Orders.FirstOrDefaultAsync(order => order.Id == id);
+            => await _dbContext.Orders
+                .Include(order => order.Client)
+                // .Include(order => order.ShipmentAddress)
+                // .Include(order => order.DeliveryAddress)
+                .Include(order => order.Shipments)
+                    .ThenInclude(shipment => shipment.Pieces)
+            .FirstOrDefaultAsync(order => order.Id == id);
 
         public async Task<bool> SaveChangesAsync()
             => await _dbContext.SaveChangesAsync() > 0;
