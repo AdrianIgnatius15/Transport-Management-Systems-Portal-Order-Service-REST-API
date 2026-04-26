@@ -80,7 +80,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API
             {
                 OrderNumber = "ORD-2024-001",
                 ClientId = client.Id,
-                PickupAddressId = addresses[0].Id, // Bucknell Rd
+                ShipmentAddressId = addresses[0].Id, // Bucknell Rd
                 DeliveryAddressId = addresses[1].Id, // Christ Cathedral
                 Status = OrderStatus.InTransit,
                 Priority = "High",
