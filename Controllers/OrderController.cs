@@ -45,8 +45,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                     var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(o);
                     if (o.Client != null)
                         orderReadDto.Client = MapperUtility.Map<Client, ClientReadDto>(o.Client);
-                    if (o.PickupAddress != null)
-                        orderReadDto.PickupAddress = MapperUtility.Map<Address, AddressReadDto>(o.PickupAddress);
+                    if (o.ShipmentAddress != null)
+                        orderReadDto.ShipmentAddress = MapperUtility.Map<Address, AddressReadDto>(o.ShipmentAddress);
                     if (o.DeliveryAddress != null)
                         orderReadDto.DeliveryAddress = MapperUtility.Map<Address, AddressReadDto>(o.DeliveryAddress);
                     return orderReadDto;
@@ -80,8 +80,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                     var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(o);
                     if (o.Client != null)
                         orderReadDto.Client = MapperUtility.Map<Client, ClientReadDto>(o.Client);
-                    if (o.PickupAddress != null)
-                        orderReadDto.PickupAddress = MapperUtility.Map<Address, AddressReadDto>(o.PickupAddress);
+                    if (o.ShipmentAddress != null)
+                        orderReadDto.ShipmentAddress = MapperUtility.Map<Address, AddressReadDto>(o.ShipmentAddress);
                     if (o.DeliveryAddress != null)
                         orderReadDto.DeliveryAddress = MapperUtility.Map<Address, AddressReadDto>(o.DeliveryAddress);
                     return orderReadDto;
@@ -114,7 +114,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
         }
 
         [HttpPost("create")]
-        [Authorize(Roles = "shipper")]
+        // [Authorize(Roles = "shipper")]
         public async Task<ActionResult<string>> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
         {
             if (orderCreateDto == null)
@@ -130,9 +130,25 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
             }
             else
             {
-                var order = MapperUtility.Map<OrderCreateDto, Order>(orderCreateDto);
-                order.OrderNumber = Guid.NewGuid().ToString();
+                // Map DTOs to entities
+                var shipmentAddress = MapperUtility.Map<AddressCreateDto, Address>(orderCreateDto.ShipmentAddress);
+                var deliveryAddress = MapperUtility.Map<AddressCreateDto, Address>(orderCreateDto.DeliveryAddress);
 
+                // Create the order with mapped addresses
+                var order = new Order
+                {
+                    Id = Guid.NewGuid(),
+                    ClientId = orderCreateDto.ClientId,
+                    OrderNumber = Guid.NewGuid().ToString(),
+                    Status = orderCreateDto.Status,
+                    Priority = orderCreateDto.Priority,
+                    ShipmentAddress = shipmentAddress,
+                    DeliveryAddress = deliveryAddress,
+                    CreatedAt = DateTime.UtcNow,
+                    UpdatedAt = DateTime.UtcNow
+                };
+
+                // EF Core's change tracker will automatically track the related Address entities
                 await _repo.CreateOrder(order);
                 await _repo.SaveChangesAsync();
 
@@ -149,8 +165,8 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
         }
 
         [HttpGet("{id}", Name = "GetOrderById")]
-        [Authorize(Roles = "shipper")]
-        public async Task<ActionResult<OrderReadDto>> GetOrderById(Guid id)
+        // [Authorize(Roles = "shipper")]
+        public async Task<ActionResult<Order>> GetOrderById(Guid id)
         {
             if (id.ToString() == "")
             {
@@ -163,11 +179,41 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                 {
                     var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(order);
 
-                    return Ok(orderReadDto);
+                    return Ok(order);
                 } else
                 {
                     return NotFound("The order ID does not exists!");
                 }
+            }
+        }
+
+        [HttpDelete("{id}")]
+        // [Authorize(Roles = "shipper")]
+        public async Task<ActionResult> DeleteOrderById(Guid id)
+        {
+            if (id.ToString() != "")
+            {
+                var deletedOrder = await _repo.GetOrderById(id);
+
+                if (deletedOrder != null)
+                {
+                    _repo.DeleteOrder(deletedOrder);
+                    bool deletionStatus = await _repo.SaveChangesAsync();
+
+                    if (deletionStatus)
+                    {
+                        return NoContent();
+                    } else
+                    {
+                        return Ok("The order cannot be deleted due to some database transaction issues! Check again in the logs");
+                    }
+                } else
+                {
+                    return NotFound("The order cannot be found!"); 
+                }
+            } else
+            {
+                return BadRequest("No order ID passed! Please pass or provide the order ID for deletion process to begin");
             }
         }
     }
