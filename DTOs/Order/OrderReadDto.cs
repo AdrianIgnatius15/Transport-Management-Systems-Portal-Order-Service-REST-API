@@ -19,11 +19,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Order
 
         public string Priority { get; set; } = string.Empty;
 
-        public Guid PickupAddressId { get; set; } = Guid.NewGuid();
-
-        public AddressReadDto PickupAddress { get; set; } = default!;
-
-        public Guid DeliveryAddressId { get; set; } = Guid.NewGuid();
+        public AddressReadDto ShipmentAddress { get; set; } = default!;
 
         public AddressReadDto DeliveryAddress { get; set; } = default!;
 

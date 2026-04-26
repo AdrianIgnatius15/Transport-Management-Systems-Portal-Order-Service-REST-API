@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Address;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Shipment;
 using Transport_Management_Systems_Portal_Order_Service_REST_API.Models.Enums;
 
@@ -19,10 +20,10 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.DTOs.Order
         public string Priority { get; set; } = string.Empty;
 
         [Required]
-        public Guid PickupAddressId { get; set; }
+        public AddressCreateDto ShipmentAddress { get; set; } = default!;
 
         [Required]
-        public Guid DeliveryAddressId { get; set; }
+        public AddressCreateDto DeliveryAddress { get; set; } = default!;
 
         public List<ShipmentCreateDto> Shipments { get; set; } = new List<ShipmentCreateDto>();
     }

@@ -26,10 +26,10 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Models
         public string Priority { get; set; } = string.Empty;
 
         [Required]
-        [ForeignKey("PickupAddressId")]
-        public Guid PickupAddressId { get; set; } = Guid.NewGuid();
+        [ForeignKey("ShipmentAddressId")]
+        public Guid ShipmentAddressId { get; set; } = Guid.NewGuid();
 
-        public Address PickupAddress { get; set; } = default!;
+        public Address ShipmentAddress { get; set; } = default!;
 
         [Required]
         [ForeignKey("DeliveryAddressId")]
