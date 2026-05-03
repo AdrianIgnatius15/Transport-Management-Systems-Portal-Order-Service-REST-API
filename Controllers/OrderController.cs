@@ -179,7 +179,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
                 {
                     var orderReadDto = MapperUtility.Map<Order, OrderReadDto>(order);
 
-                    return Ok(order);
+                    return Ok(orderReadDto);
                 } else
                 {
                     return NotFound("The order ID does not exists!");
@@ -188,7 +188,7 @@ namespace Transport_Management_Systems_Portal_Order_Service_REST_API.Controllers
         }
 
         [HttpDelete("{id}")]
-        // [Authorize(Roles = "shipper")]
+        [Authorize(Roles = "shipper")]
         public async Task<ActionResult> DeleteOrderById(Guid id)
         {
             if (id.ToString() != "")
